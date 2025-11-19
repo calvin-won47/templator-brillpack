@@ -1,0 +1,145 @@
+name: Build and Deploy Master Template
+
+# 触发器：
+# - push 到 main：发布最新模板到所有站点（批量）
+# - 手动触发（workflow_dispatch）：可选择仅部署到指定站点
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      target_site_path:
+        description: "可选：只部署到某一个站点的绝对路径 (例如 /www/wwwroot/example.com)"
+        required: false
+        type: string
+
+jobs:
+  # --- 作业 1: 构建 React/Vite 应用 ---
+  build:
+    name: 1. Build Vite Project
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm' # 缓存 npm 包以加快速度
+
+      - name: Install Dependencies
+        # npm ci 是 CI/CD 的标准，它比 install 更快更严格 [7]
+        run: npm ci 
+
+      - name: Build Production App
+        # 运行 build 脚本 (在 package.json 中定义) [8]
+        run: npm run build # 这会创建./dist 文件夹
+
+      - name: Upload Build Artifact
+        # 将./dist 文件夹保存为“产物”，以便下一个作业可以使用它
+        uses: actions/upload-artifact@v4
+        with:
+          name: vite-build-dist
+          path: ./dist
+
+  # --- 作业 2: 将构建产物部署到所有站点 ---
+  deploy:
+    name: 2. Deploy to Baota Server
+    needs: build # 确保此作业在 'build' 作业成功后才运行
+    runs-on: ubuntu-latest
+
+    # --- 关键：使用 Matrix 策略批量部署 ---
+    # 在这里手动维护您所有站点的“服务器绝对路径”
+    strategy:
+      matrix:
+        site_path:
+          # 运行 'create_site.py' 后，您需要来这里添加新站点的路径
+          - /www/wwwroot/hz121.com
+          - /www/wwwroot/zhongwangcq.com
+          - /www/wwwroot/fzzozs.com
+          - /www/wwwroot/aysggw.com
+          - /www/wwwroot/cloudchinaexpo.com
+          # - /www/wwwroot/client-c.com
+          #... 您可以在这里列出100个
+
+    steps:
+      - name: Checkout Code (for seeding config.json)
+        uses: actions/checkout@v5
+
+      - name: Download Build Artifact
+        # 下载 'build' 作业保存的./dist 文件夹
+        uses: actions/download-artifact@v4
+        with:
+          name: vite-build-dist
+          path: ./dist
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.BAOTA_SSH_PRIVATE_KEY }}
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.BAOTA_SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to ${{ matrix.site_path }} via rsync
+        run: |
+          rsync -rlDz \
+            --delete \
+            --omit-dir-times \
+            --exclude='config.json' \
+            --exclude='.user.ini' \
+            --exclude='.well-known/' \
+            --exclude='logs/' \
+            --exclude='ssl/' \
+            ./dist/ ${{ secrets.BAOTA_SSH_USER }}@${{ secrets.BAOTA_SERVER_IP }}:${{ matrix.site_path }}
+
+      - name: Seed config.json if missing (first-time only)
+        run: |
+          rsync -avzr --ignore-existing ./public/config.json ${{ secrets.BAOTA_SSH_USER }}@${{ secrets.BAOTA_SERVER_IP }}:${{ matrix.site_path }}/
+
+  # --- 作业 3: 仅部署到一个指定站点（手动触发用） ---
+  deploy_single:
+    name: 3. Deploy Single Site (Manual)
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.target_site_path != '' }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code (for seeding config.json)
+        uses: actions/checkout@v5
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: vite-build-dist
+          path: ./dist
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.BAOTA_SSH_PRIVATE_KEY }}
+
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.BAOTA_SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to ${{ inputs.target_site_path }} via rsync
+        run: |
+          rsync -rlDz \
+            --delete \
+            --omit-dir-times \
+            --exclude='config.json' \
+            --exclude='.user.ini' \
+            --exclude='.well-known/' \
+            --exclude='logs/' \
+            --exclude='ssl/' \
+            ./dist/ ${{ secrets.BAOTA_SSH_USER }}@${{ secrets.BAOTA_SERVER_IP }}:${{ inputs.target_site_path }}
+
+      - name: Seed config.json if missing (first-time only)
+        run: |
+          rsync -avzr --ignore-existing ./public/config.json ${{ secrets.BAOTA_SSH_USER }}@${{ secrets.BAOTA_SERVER_IP }}:${{ inputs.target_site_path }}/
