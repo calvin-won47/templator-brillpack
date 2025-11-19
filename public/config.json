@@ -1,0 +1,54 @@
+{
+  "basic": {
+    "app_name": "示例应用名称",
+    "strapi_url": "https://2amcreations.com",
+    "strapi_site_slug": "default-site",
+    "gtmId": "GTM-XXXXXX",
+    "seo": {
+      "title": "默认SEO标题",
+      "description": "默认SEO描述",
+      "keywords": "关键词1, 关键词2, 关键词3"
+    },
+    "hero": {
+      "slogan": "这里是站点的Slogan",
+      "description": "这里是Hero区域的详细描述文本。"
+    }
+  },
+  "extra": {
+    "navigation": {
+      "show_quick_quote": true
+    },
+    "contact": {
+      "email": "contact@example.com",
+      "phone": "+86 010-8888-8888",
+      "address_lines": [
+        "北京市朝阳区示例路100号",
+        "A座 5F"
+      ]
+    },
+    "footer": {
+      "legal_text": "© 2024 示例应用名称. 保留所有权利。"
+    },
+    "about": {
+      "heading": "我们是谁",
+      "subheading": "专注于定制包装解决方案",
+      "features": [
+        "原创设计与品牌塑造",
+        "高端材料与工艺",
+        "快速交付周期",
+        "各类订单的优质价格"
+      ]
+    },
+    "services": {
+      "items": [
+        { "title": "定制盒型设计", "description": "基于产品与品牌，输出专属盒型与结构设计。" },
+        { "title": "高级表面工艺", "description": "烫金、压凸、UV、覆膜等工艺打造高级质感。" },
+        { "title": "品牌形象提升", "description": "以包装讲述品牌故事，提升用户感知与价值。" },
+        { "title": "高效交付", "description": "在保证质量的前提下快速响应与交付。" }
+      ]
+    },
+    "seo": {
+      "ogImage": "https://example.com/opengraph.png"
+    }
+  }
+}

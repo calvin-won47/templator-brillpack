@@ -1,8 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { Box, Palette, Sparkles, Truck } from "lucide-react";
+import { useConfig } from "@/contexts/ConfigContext";
 
 export const Services = () => {
-  const services = [
+  const { extra } = useConfig();
+  const defaultServices = [
     {
       icon: Box,
       title: "Custom Box Design",
@@ -28,6 +30,15 @@ export const Services = () => {
         "Quick turnaround times without compromising on quality, ensuring your products reach market faster.",
     },
   ];
+
+  const extraItems = extra?.services?.items;
+  const services = extraItems && extraItems.length
+    ? extraItems.map((item, idx) => ({
+        icon: [Box, Palette, Sparkles, Truck][idx % 4],
+        title: item.title,
+        description: item.description,
+      }))
+    : defaultServices;
 
   return (
     <section id="services" className="py-20 bg-muted/30">

@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Package } from "lucide-react";
 import heroImage from "@/assets/hero-packaging.jpg";
+import { useConfig } from "@/contexts/ConfigContext";
 
 export const Hero = () => {
+  const { basic } = useConfig();
   return (
     <section
       id="home"
@@ -17,15 +19,10 @@ export const Hero = () => {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="text-primary-foreground space-y-6 animate-fade-in">
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
-              Elevate Your Brand with{" "}
-              <span className="bg-gradient-to-r from-accent to-secondary bg-clip-text text-transparent">
-                Custom Packaging Solutions
-              </span>
+              {basic.hero?.slogan || "Elevate Your Brand with Custom Packaging Solutions"}
             </h1>
             <p className="text-xl md:text-2xl text-primary-foreground/90">
-              Brilliance in every box – unlock your product's potential with
-              tailor-made packaging that captivates customers and protects what's
-              inside.
+              {basic.hero?.description || "Brilliance in every box – unlock your product's potential with tailor-made packaging that captivates customers and protects what's inside."}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button variant="hero" size="lg" className="group">

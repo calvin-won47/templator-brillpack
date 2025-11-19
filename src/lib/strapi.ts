@@ -1,5 +1,8 @@
-export const API_URL = "https://2amcreations.com";
-export const SITE_SLUG = "xmyxyswkj";
+// Read Strapi endpoint and site slug from the injected APP_CONFIG
+export const API_URL =
+  (typeof window !== "undefined" && (window as any).APP_CONFIG?.basic?.strapi_url) || "https://2amcreations.com";
+export const SITE_SLUG =
+  (typeof window !== "undefined" && (window as any).APP_CONFIG?.basic?.strapi_site_slug) || "xmyxyswkj";
 
 export function buildUrl(path: string) {
   return `${API_URL}${path}`;

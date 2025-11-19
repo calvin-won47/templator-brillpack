@@ -1,8 +1,10 @@
 import { CheckCircle } from "lucide-react";
 import teamImage from "@/assets/team-collaboration.jpg";
+import { useConfig } from "@/contexts/ConfigContext";
 
 export const About = () => {
-  const features = [
+  const { extra } = useConfig();
+  const features = extra?.about?.features || [
     "Custom design and branding solutions",
     "High-quality materials and finishes",
     "Fast turnaround times",
@@ -25,10 +27,10 @@ export const About = () => {
 
           <div className="space-y-6">
             <div className="inline-block px-4 py-2 bg-accent text-accent-foreground rounded-full text-sm font-semibold">
-              Who We Are
+              {extra?.about?.heading || "Who We Are"}
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-foreground">
-              Delivering Excellence in Custom Packaging
+              {extra?.about?.subheading || "Delivering Excellence in Custom Packaging"}
             </h2>
             <p className="text-lg text-muted-foreground">
               For over a decade, BrillPack has delivered custom packaging that

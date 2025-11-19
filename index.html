@@ -3,34 +3,50 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BrillPack - Custom Packaging Solutions</title>
-    <meta name="description" content="Elevate your brand with custom packaging solutions. Premium rigid boxes, magnetic closure designs, and tailor-made packaging that captivates customers and protects your products." />
-    <meta name="author" content="BrillPack" />
+    <title>正在加载...</title>
 
-    <meta property="og:title" content="BrillPack - Custom Packaging Solutions" />
-    <meta property="og:description" content="Brilliance in every box – unlock your product's potential with tailor-made packaging that captivates customers and protects what's inside." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@Lovable" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <!-- Google Tag Manager -->
+    <!-- 阻塞式加载外部配置，确保首屏不闪烁 -->
     <script>
-      (function(w,d,s,l,i){
+      // 设置默认配置，防止 /config.json 加载失败
+      window.APP_CONFIG = {
+        basic: {
+          app_name: "加载失败",
+          strapi_url: "",
+          strapi_site_slug: "error",
+          gtmId: "GTM-XXXXXX",
+          seo: { title: "", description: "", keywords: "" },
+          hero: { slogan: "", description: "" }
+        },
+        extra: {}
+      };
+
+      try {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/config.json', false); // 同步阻塞
+        xhr.send(null);
+        if (xhr.status === 200) {
+          window.APP_CONFIG = JSON.parse(xhr.responseText);
+        } else {
+          console.warn('无法加载外部 config.json，将使用默认配置。');
+        }
+      } catch (error) {
+        console.error('加载 config.json 时出错:', error);
+      }
+
+      // 根据配置动态注入 GTM
+      (function(w,d,s,l){
+        var gtmId = (w.APP_CONFIG && w.APP_CONFIG.basic && w.APP_CONFIG.basic.gtmId) || 'GTM-XXXXXX';
         w[l]=w[l]||[];w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
         var f=d.getElementsByTagName(s)[0], j=d.createElement(s), dl=l!='dataLayer'?'&l='+l:'';
-        j.async=true; j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+        j.async=true; j.src='https://www.googletagmanager.com/gtm.js?id='+gtmId+dl;
         f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','GTM-58TDPTJ3');
+      })(window,document,'script','dataLayer');
     </script>
-    <!-- End Google Tag Manager -->
   </head>
 
   <body>
     <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-58TDPTJ3" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXX" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

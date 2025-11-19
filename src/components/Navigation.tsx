@@ -1,10 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { useConfig } from "@/contexts/ConfigContext";
 import { NavLink } from "@/components/NavLink";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { basic } = useConfig();
+  const { extra } = useConfig();
 
   const navItems = [
     { name: "Home", href: "#home" },
@@ -20,7 +23,7 @@ export const Navigation = () => {
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center">
             <a href="#home" className="text-2xl font-bold">
-              BrillPack
+              {basic.app_name}
             </a>
           </div>
 
@@ -38,9 +41,11 @@ export const Navigation = () => {
             <NavLink to="/blog" className="hover:text-accent transition-colors font-medium">
               Blog
             </NavLink>
-            <Button variant="hero" size="default">
-              Quick Quote
-            </Button>
+            {extra?.navigation?.show_quick_quote !== false && (
+              <Button variant="hero" size="default">
+                Quick Quote
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -73,9 +78,11 @@ export const Navigation = () => {
             >
               Blog
             </NavLink>
-            <Button variant="hero" size="default" className="w-full mt-4">
-              Quick Quote
-            </Button>
+            {extra?.navigation?.show_quick_quote !== false && (
+              <Button variant="hero" size="default" className="w-full mt-4">
+                Quick Quote
+              </Button>
+            )}
           </div>
         )}
       </div>
